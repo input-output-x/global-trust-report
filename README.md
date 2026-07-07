@@ -126,17 +126,31 @@ If a link is empty, the site shows a configuration warning instead of sending us
 
 ## Supabase Auth / 登录注册
 
-The login UI is already scaffolded with Google OAuth, email magic link, demo sign-in, free report credits and local report history. To enable real accounts, create a Supabase project and fill `authConfig.js`:
+The login UI is already scaffolded with Google OAuth, email magic link, demo sign-in, free report credits and local report history. This repo is currently connected to the Supabase project `alfbnfxxxjdoosmpxciy`:
 
-登录 UI 已经搭好，包含 Google 登录、邮箱 Magic Link、Demo 登录、免费报告额度和报告历史。要启用真实账户，创建 Supabase 项目后填 `authConfig.js`：
+登录 UI 已经搭好，包含 Google 登录、邮箱 Magic Link、Demo 登录、免费报告额度和报告历史。当前仓库已接入 Supabase 项目 `alfbnfxxxjdoosmpxciy`：
 
 ```js
 export const authConfig = {
-  supabaseUrl: "https://YOUR_PROJECT.supabase.co",
-  supabaseAnonKey: "YOUR_SUPABASE_ANON_KEY",
+  supabaseUrl: "https://alfbnfxxxjdoosmpxciy.supabase.co",
+  supabaseAnonKey: "YOUR_SUPABASE_PUBLISHABLE_KEY",
   redirectTo: "https://input-output-x.github.io/global-trust-report/"
 };
 ```
+
+Supabase Auth URL configuration:
+
+- Site URL: `https://input-output-x.github.io/global-trust-report/`
+- Google OAuth callback URL: `https://alfbnfxxxjdoosmpxciy.supabase.co/auth/v1/callback`
+
+To enable Google sign-in, create an OAuth Web Client in Google Cloud, add the callback URL above as an authorized redirect URI, then paste the Google Client ID and Client Secret into Supabase Authentication -> Sign In / Providers -> Google.
+
+Supabase Auth URL 配置：
+
+- Site URL：`https://input-output-x.github.io/global-trust-report/`
+- Google OAuth 回调地址：`https://alfbnfxxxjdoosmpxciy.supabase.co/auth/v1/callback`
+
+要启用 Google 登录，需要先在 Google Cloud 创建 OAuth Web Client，把上面的回调地址加入 Authorized redirect URI，然后把 Google Client ID 和 Client Secret 填进 Supabase Authentication -> Sign In / Providers -> Google。
 
 Then run the SQL in `supabase/schema.sql` inside the Supabase SQL Editor. It creates:
 

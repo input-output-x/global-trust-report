@@ -31,18 +31,22 @@ alter table public.profiles enable row level security;
 alter table public.reports enable row level security;
 alter table public.stripe_events enable row level security;
 
+drop policy if exists "Users can read own profile" on public.profiles;
 create policy "Users can read own profile"
   on public.profiles for select
   using (auth.uid() = id);
 
+drop policy if exists "Users can update own profile" on public.profiles;
 create policy "Users can update own profile"
   on public.profiles for update
   using (auth.uid() = id);
 
+drop policy if exists "Users can read own reports" on public.reports;
 create policy "Users can read own reports"
   on public.reports for select
   using (auth.uid() = user_id);
 
+drop policy if exists "Users can insert own reports" on public.reports;
 create policy "Users can insert own reports"
   on public.reports for insert
   with check (auth.uid() = user_id);

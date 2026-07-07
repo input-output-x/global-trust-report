@@ -3,6 +3,7 @@ import {
   runPublicSearch,
   summarizeRecords
 } from "./searchService.js";
+import { isConfiguredPaymentLink, paymentLinks } from "./paymentLinks.js";
 
 const translations = {
   en: {
@@ -56,6 +57,19 @@ const translations = {
       empty: "Run a search to see Wikipedia, Wikidata, GitHub and Hacker News results here.",
       apiNote:
         "GitHub Pages cannot securely store commercial search API keys. Full web search should be connected through a backend using Serper, Tavily, Bing or another compliant provider."
+    },
+    payment: {
+      startFree: "Start free",
+      buySingle: "Buy report",
+      buyDeep: "Buy deep report",
+      subscribeTeam: "Subscribe",
+      contactApi: "Request API access",
+      contactEnterprise: "Contact sales",
+      note:
+        "Payments use Stripe Payment Links. Add your Stripe links in paymentLinks.js to enable live checkout.",
+      unconfigured:
+        "Stripe checkout is not configured yet. Add a Payment Link for this plan in paymentLinks.js.",
+      redirecting: "Opening Stripe Checkout..."
     },
     positioning: {
       eyebrow: "Positioning",
@@ -234,6 +248,17 @@ const translations = {
       apiNote:
         "GitHub Pages 不能安全保存商业搜索 API 密钥。真正的全网搜索应通过后端接入 Serper、Tavily、Bing 或其他合规搜索服务。"
     },
+    payment: {
+      startFree: "免费开始",
+      buySingle: "购买报告",
+      buyDeep: "购买深度报告",
+      subscribeTeam: "订阅团队版",
+      contactApi: "申请 API",
+      contactEnterprise: "联系销售",
+      note: "支付使用 Stripe Payment Links。在 paymentLinks.js 中填入你的 Stripe 链接后即可开启真实结账。",
+      unconfigured: "Stripe 结账链接还没配置。请先在 paymentLinks.js 中为这个套餐填入 Payment Link。",
+      redirecting: "正在打开 Stripe Checkout..."
+    },
     positioning: {
       eyebrow: "产品定位",
       title: "AI 人物研究的垂直付费版本。",
@@ -366,6 +391,7 @@ const langToggle = document.querySelector("#lang-toggle");
 const sourceGrid = document.querySelector("#source-grid");
 const sourceErrors = document.querySelector("#source-errors");
 const searchStatus = document.querySelector("#search-status");
+const paymentNote = document.querySelector("#payment-note");
 const supportedLanguages = ["en", "zh"];
 let activeLanguage = getInitialLanguage();
 
@@ -398,6 +424,8 @@ function applyLanguage() {
     element.setAttribute("placeholder", translate(element.dataset.i18nPlaceholder));
   });
 
+  paymentNote.textContent = translate("payment.note");
+  paymentNote.classList.remove("is-warning");
   renderReport(activeModeKey());
   renderEmptySources();
 }
@@ -539,6 +567,28 @@ form.addEventListener("submit", async (event) => {
         ? `搜索失败：${error.message}。${translate("sources.apiNote")}`
         : `Search failed: ${error.message}. ${translate("sources.apiNote")}`;
   }
+});
+
+document.querySelectorAll("[data-pay-plan]").forEach((button) => {
+  button.addEventListener("click", () => {
+    const plan = button.dataset.payPlan;
+
+    if (plan === "free") {
+      document.querySelector("#research").scrollIntoView({ behavior: "smooth", block: "start" });
+      queryInput.focus();
+      return;
+    }
+
+    const url = paymentLinks[plan];
+    if (isConfiguredPaymentLink(url)) {
+      paymentNote.textContent = translate("payment.redirecting");
+      window.location.href = url;
+      return;
+    }
+
+    paymentNote.textContent = translate("payment.unconfigured");
+    paymentNote.classList.add("is-warning");
+  });
 });
 
 applyLanguage();

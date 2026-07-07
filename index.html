@@ -163,33 +163,42 @@
             <h3 data-i18n="pricing.free.title">First 3 reports</h3>
             <strong data-i18n="pricing.free.price">Free</strong>
             <p data-i18n="pricing.free.body">Let users experience the full flow before paying.</p>
+            <button class="pay-button" type="button" data-pay-plan="free" data-i18n="payment.startFree">Start free</button>
           </article>
           <article class="price-card">
             <h3 data-i18n="pricing.single.title">Single report</h3>
             <strong>$9-$29</strong>
             <p data-i18n="pricing.single.body">Fast checks for individual users and lightweight decisions.</p>
+            <button class="pay-button" type="button" data-pay-plan="single" data-i18n="payment.buySingle">Buy report</button>
           </article>
           <article class="price-card featured">
             <h3 data-i18n="pricing.deep.title">Deep report</h3>
             <strong>$49-$199</strong>
             <p data-i18n="pricing.deep.body">Higher-stakes reports for hiring, sponsorship, investment and business due diligence.</p>
+            <button class="pay-button" type="button" data-pay-plan="deep" data-i18n="payment.buyDeep">Buy deep report</button>
           </article>
           <article class="price-card">
             <h3 data-i18n="pricing.team.title">Team</h3>
             <strong>$99-$499/mo</strong>
             <p data-i18n="pricing.team.body">Shared workflows for agencies, recruiting teams, brands and cross-border operators.</p>
+            <button class="pay-button" type="button" data-pay-plan="team" data-i18n="payment.subscribeTeam">Subscribe</button>
           </article>
           <article class="price-card" id="api">
             <h3>API</h3>
             <strong data-i18n="pricing.api.price">Usage based</strong>
             <p data-i18n="pricing.api.body">Query-based pricing for platforms, CRMs, risk engines and creator marketplaces.</p>
+            <button class="pay-button" type="button" data-pay-plan="api" data-i18n="payment.contactApi">Request API access</button>
           </article>
           <article class="price-card">
             <h3 data-i18n="pricing.enterprise.title">Enterprise compliance</h3>
             <strong data-i18n="pricing.enterprise.price">Custom</strong>
             <p data-i18n="pricing.enterprise.body">Custom controls, review workflows, policy constraints and audit support.</p>
+            <button class="pay-button" type="button" data-pay-plan="enterprise" data-i18n="payment.contactEnterprise">Contact sales</button>
           </article>
         </div>
+        <p class="payment-note" id="payment-note" data-i18n="payment.note">
+          Payments use Stripe Payment Links. Add your Stripe links in paymentLinks.js to enable live checkout.
+        </p>
       </section>
 
       <section class="section compliance" id="compliance" aria-labelledby="compliance-title">

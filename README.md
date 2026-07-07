@@ -95,3 +95,31 @@ npm start
 ```bash
 npm run build
 ```
+
+## Stripe Payment Links / Stripe 支付接入
+
+This GitHub Pages version uses Stripe Payment Links because a static site cannot safely store a Stripe secret key. Create your products and payment links in the Stripe Dashboard, then paste the live links into `paymentLinks.js`.
+
+当前 GitHub Pages 版本使用 Stripe Payment Links，因为静态站不能安全保存 Stripe Secret Key。你需要先在 Stripe Dashboard 创建产品和 Payment Link，然后把真实链接填入 `paymentLinks.js`。
+
+```js
+export const paymentLinks = {
+  single: "https://buy.stripe.com/...",
+  deep: "https://buy.stripe.com/...",
+  team: "https://buy.stripe.com/...",
+  api: "https://buy.stripe.com/...",
+  enterprise: "https://buy.stripe.com/..."
+};
+```
+
+Recommended mapping / 推荐映射：
+
+- `single`: Single report / 单次报告
+- `deep`: Deep report / 深度报告
+- `team`: Team subscription / 团队订阅
+- `api`: API access or usage deposit / API 权限或用量预充值
+- `enterprise`: Enterprise compliance deposit or sales checkout / 企业合规定金或销售结账
+
+If a link is empty, the site shows a configuration warning instead of sending users to a fake checkout.
+
+如果链接为空，网站会显示配置提示，不会把用户带到假的结账页。

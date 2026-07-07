@@ -429,6 +429,8 @@ p {
 }
 
 .price-card {
+  display: flex;
+  flex-direction: column;
   min-height: 210px;
   padding: 24px;
 }
@@ -437,6 +439,46 @@ p {
   display: block;
   margin-bottom: 14px;
   font-size: 34px;
+}
+
+.price-card p {
+  flex: 1;
+}
+
+.pay-button {
+  width: 100%;
+  min-height: 46px;
+  margin-top: 18px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: #fff;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.pay-button:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.price-card:first-child .pay-button {
+  background: #fff;
+  color: var(--ink);
+}
+
+.payment-note {
+  max-width: 760px;
+  margin: 18px 0 0;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  background: #fff;
+  font-size: 14px;
+}
+
+.payment-note.is-warning {
+  border-color: rgba(194, 123, 36, 0.5);
+  background: rgba(194, 123, 36, 0.09);
+  color: #5d421c;
 }
 
 .price-card.featured {

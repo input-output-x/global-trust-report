@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="AI-powered public trust reports for hiring, investing, creator sponsorships and business partnerships."
+    />
+    <title>Global Trust Report</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Global Trust Report home">
+        <span class="brand-mark">G</span>
+        <span>Global Trust Report</span>
+      </a>
+      <nav class="nav" aria-label="Primary navigation">
+        <a href="#reports">Reports</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#compliance">Compliance</a>
+        <a href="#api">API</a>
+      </nav>
+      <a class="nav-cta" href="#research">Start free</a>
+    </header>
+
+    <main>
+      <section class="workspace" id="research" aria-labelledby="workspace-title">
+        <aside class="sidebar" aria-label="Report categories">
+          <div class="sidebar-title">Research modes</div>
+          <button class="mode is-active" type="button" data-mode="creator">Creator Risk</button>
+          <button class="mode" type="button" data-mode="contractor">Contractor Trust</button>
+          <button class="mode" type="button" data-mode="founder">Founder Brief</button>
+          <button class="mode" type="button" data-mode="web3">Web3 Identity</button>
+          <div class="usage">
+            <span class="usage-label">Free reports</span>
+            <strong>3 left</strong>
+          </div>
+        </aside>
+
+        <section class="research-panel">
+          <div class="intro">
+            <p class="eyebrow">Public information intelligence</p>
+            <h1 id="workspace-title">AI trust reports before you hire, sponsor, invest or collaborate.</h1>
+            <p>
+              Enter a name, social profile, company, creator page, wallet address or public link.
+              The system organizes open web signals into a structured decision report.
+            </p>
+          </div>
+
+          <form class="search-box" id="report-form">
+            <label class="sr-only" for="query">Research subject</label>
+            <input
+              id="query"
+              name="query"
+              type="text"
+              autocomplete="off"
+              placeholder="Try: @creator, linkedin.com/in/name, company.com, vitalik.eth"
+              required
+            />
+            <select id="depth" name="depth" aria-label="Report depth">
+              <option value="fast">Fast report</option>
+              <option value="deep">Deep report</option>
+              <option value="team">Team workflow</option>
+            </select>
+            <button type="submit">Generate sample</button>
+          </form>
+
+          <div class="report-shell" id="reports">
+            <div class="report-header">
+              <div>
+                <span class="status-dot"></span>
+                <span id="report-mode">Creator Risk Report</span>
+              </div>
+              <span id="report-price">Free sample</span>
+            </div>
+
+            <div class="risk-score">
+              <div>
+                <span class="score-label">Trust signal</span>
+                <strong id="score">82</strong>
+              </div>
+              <div class="meter" aria-hidden="true"><span id="meter-fill"></span></div>
+            </div>
+
+            <div class="report-grid">
+              <article>
+                <h2>Summary</h2>
+                <p id="summary">
+                  Public profiles appear consistent across professional and social channels.
+                  No major high-confidence risk signal is visible in the sample report.
+                </p>
+              </article>
+              <article>
+                <h2>Public signals</h2>
+                <ul id="signals">
+                  <li>Profile identity appears consistent across linked public pages.</li>
+                  <li>Recent activity suggests the account is actively maintained.</li>
+                  <li>Source quality should be verified before commercial decisions.</li>
+                </ul>
+              </article>
+              <article>
+                <h2>Recommended use</h2>
+                <p id="use-case">
+                  Useful for creator sponsorship screening, brand safety checks and early collaboration review.
+                </p>
+              </article>
+              <article>
+                <h2>Sources policy</h2>
+                <p>
+                  Reports should cite public URLs, confidence levels and timestamped evidence.
+                  Private, hacked, deleted or paywalled data is out of scope.
+                </p>
+              </article>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <section class="section split" aria-labelledby="positioning-title">
+        <div>
+          <p class="eyebrow">Positioning</p>
+          <h2 id="positioning-title">A vertical paid version of AI people research.</h2>
+        </div>
+        <p>
+          Nuwa proves that AI-powered people research has demand. Global Trust Report focuses on
+          high-value trust decisions: creators, contractors, founders, business partners and Web3 identities.
+        </p>
+      </section>
+
+      <section class="section" id="pricing" aria-labelledby="pricing-title">
+        <div class="section-heading">
+          <p class="eyebrow">Pricing</p>
+          <h2 id="pricing-title">Free to try. Paid when trust matters.</h2>
+        </div>
+        <div class="pricing-grid">
+          <article class="price-card">
+            <h3>First 3 reports</h3>
+            <strong>Free</strong>
+            <p>Let users experience the full flow before paying.</p>
+          </article>
+          <article class="price-card">
+            <h3>Single report</h3>
+            <strong>$9-$29</strong>
+            <p>Fast checks for individual users and lightweight decisions.</p>
+          </article>
+          <article class="price-card featured">
+            <h3>Deep report</h3>
+            <strong>$49-$199</strong>
+            <p>Higher-stakes reports for hiring, sponsorship, investment and business due diligence.</p>
+          </article>
+          <article class="price-card">
+            <h3>Team</h3>
+            <strong>$99-$499/mo</strong>
+            <p>Shared workflows for agencies, recruiting teams, brands and cross-border operators.</p>
+          </article>
+          <article class="price-card" id="api">
+            <h3>API</h3>
+            <strong>Usage based</strong>
+            <p>Query-based pricing for platforms, CRMs, risk engines and creator marketplaces.</p>
+          </article>
+          <article class="price-card">
+            <h3>Enterprise compliance</h3>
+            <strong>Custom</strong>
+            <p>Custom controls, review workflows, policy constraints and audit support.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section compliance" id="compliance" aria-labelledby="compliance-title">
+        <div class="section-heading">
+          <p class="eyebrow">Compliance boundary</p>
+          <h2 id="compliance-title">Built for public information, not private surveillance.</h2>
+        </div>
+        <div class="compliance-grid">
+          <article>
+            <h3>Public data only</h3>
+            <p>No account cracking, permission bypassing, private messages, deleted content or private databases.</p>
+          </article>
+          <article>
+            <h3>Source transparency</h3>
+            <p>Important conclusions should include public source links, confidence levels and review timestamps.</p>
+          </article>
+          <article>
+            <h3>No stalking or harassment</h3>
+            <p>The product is for due diligence, anti-fraud, brand safety and collaboration review.</p>
+          </article>
+          <article>
+            <h3>Human final decision</h3>
+            <p>AI output is not legal, financial, credit, housing, insurance or employment advice.</p>
+          </article>
+          <article>
+            <h3>Correction workflow</h3>
+            <p>Subjects should be able to request correction, dispute false matches or remove unsupported claims.</p>
+          </article>
+          <article>
+            <h3>Restricted use cases</h3>
+            <p>No political persecution, illegal monitoring, discriminatory profiling or regulated credit decisions.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>Global Trust Report</span>
+      <span>AI-powered public trust reports for global collaboration.</span>
+    </footer>
+
+    <script type="module" src="./script.js"></script>
+  </body>
+</html>

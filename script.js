@@ -1,3 +1,9 @@
+import {
+  buildSignals,
+  runPublicSearch,
+  summarizeRecords
+} from "./searchService.js";
+
 const translations = {
   en: {
     metaDescription:
@@ -22,7 +28,7 @@ const translations = {
     form: {
       label: "Research subject",
       placeholder: "Try: @creator, linkedin.com/in/name, company.com, vitalik.eth",
-      submit: "Generate sample",
+      submit: "Search sources",
       samplePrefix: "sample for"
     },
     depth: {
@@ -38,6 +44,18 @@ const translations = {
       sourcesTitle: "Sources policy",
       sourcesBody:
         "Reports should cite public URLs, confidence levels and timestamped evidence. Private, hacked, deleted or paywalled data is out of scope."
+    },
+    sources: {
+      title: "Live public sources",
+      body: "This demo calls public APIs directly from the browser and shows source links for review.",
+      idle: "Ready",
+      loading: "Searching",
+      complete: "Complete",
+      partial: "Partial",
+      failed: "Failed",
+      empty: "Run a search to see Wikipedia, Wikidata, GitHub and Hacker News results here.",
+      apiNote:
+        "GitHub Pages cannot securely store commercial search API keys. Full web search should be connected through a backend using Serper, Tavily, Bing or another compliant provider."
     },
     positioning: {
       eyebrow: "Positioning",
@@ -187,7 +205,7 @@ const translations = {
     form: {
       label: "研究对象",
       placeholder: "试试：@creator、linkedin.com/in/name、company.com、vitalik.eth",
-      submit: "生成样例",
+      submit: "搜索来源",
       samplePrefix: "样例："
     },
     depth: {
@@ -203,6 +221,18 @@ const translations = {
       sourcesTitle: "来源政策",
       sourcesBody:
         "报告应引用公开 URL、可信度等级和证据时间戳。私密、破解、已删除或付费墙后的数据不在产品范围内。"
+    },
+    sources: {
+      title: "实时公开来源",
+      body: "这个演示会直接在浏览器调用公开 API，并展示可复核的来源链接。",
+      idle: "待搜索",
+      loading: "搜索中",
+      complete: "完成",
+      partial: "部分完成",
+      failed: "失败",
+      empty: "搜索后会在这里显示 Wikipedia、Wikidata、GitHub 和 Hacker News 结果。",
+      apiNote:
+        "GitHub Pages 不能安全保存商业搜索 API 密钥。真正的全网搜索应通过后端接入 Serper、Tavily、Bing 或其他合规搜索服务。"
     },
     positioning: {
       eyebrow: "产品定位",
@@ -333,6 +363,9 @@ const modeButtons = [...document.querySelectorAll(".mode")];
 const queryInput = document.querySelector("#query");
 const depthSelect = document.querySelector("#depth");
 const langToggle = document.querySelector("#lang-toggle");
+const sourceGrid = document.querySelector("#source-grid");
+const sourceErrors = document.querySelector("#source-errors");
+const searchStatus = document.querySelector("#search-status");
 const supportedLanguages = ["en", "zh"];
 let activeLanguage = getInitialLanguage();
 
@@ -366,6 +399,7 @@ function applyLanguage() {
   });
 
   renderReport(activeModeKey());
+  renderEmptySources();
 }
 
 function renderReport(modeKey) {
@@ -386,6 +420,67 @@ function renderReport(modeKey) {
   });
 }
 
+function renderEmptySources() {
+  if (!sourceGrid.children.length || sourceGrid.querySelector(".source-empty")) {
+    sourceGrid.innerHTML = `<article class="source-empty">${translate("sources.empty")}</article>`;
+    sourceErrors.hidden = true;
+    searchStatus.textContent = translate("sources.idle");
+  }
+}
+
+function renderSourceCards(records) {
+  if (!records.length) {
+    sourceGrid.innerHTML = `<article class="source-empty">${translate("sources.empty")}</article>`;
+    return;
+  }
+
+  sourceGrid.innerHTML = records
+    .slice(0, 12)
+    .map((record) => {
+      const title = escapeHtml(record.title || record.url || record.source);
+      const snippet = escapeHtml(record.snippet || "");
+      const source = escapeHtml(record.source);
+      const confidence = escapeHtml(record.confidence || "medium");
+      const url = escapeHtml(record.url || "#");
+
+      return `
+        <article class="source-card">
+          <div class="source-meta">
+            <span>${source}</span>
+            <span>${confidence}</span>
+          </div>
+          <a href="${url}" target="_blank" rel="noreferrer">${title}</a>
+          <p>${snippet}</p>
+        </article>
+      `;
+    })
+    .join("");
+}
+
+function renderSourceErrors(errors) {
+  if (!errors.length) {
+    sourceErrors.hidden = true;
+    sourceErrors.textContent = "";
+    return;
+  }
+
+  const sourceNames = errors.map((error) => error.source).join(", ");
+  sourceErrors.hidden = false;
+  sourceErrors.textContent =
+    activeLanguage === "zh"
+      ? `部分来源暂时不可用：${sourceNames}。${translate("sources.apiNote")}`
+      : `Some sources are temporarily unavailable: ${sourceNames}. ${translate("sources.apiNote")}`;
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
 modeButtons.forEach((button) => {
   button.addEventListener("click", () => {
     modeButtons.forEach((item) => item.classList.remove("is-active"));
@@ -400,19 +495,50 @@ langToggle.addEventListener("click", () => {
   applyLanguage();
 });
 
-form.addEventListener("submit", (event) => {
+form.addEventListener("submit", async (event) => {
   event.preventDefault();
   const report = translations[activeLanguage].modes[activeModeKey()];
   const subject = queryInput.value.trim();
   const depth = depthSelect.options[depthSelect.selectedIndex].text;
-  const prefix = translate("form.samplePrefix");
-  const sampleText =
-    activeLanguage === "zh"
-      ? `${depth}${prefix}"${subject}"：${report.summary}`
-      : `${depth} ${prefix} "${subject}": ${report.summary}`;
 
-  document.querySelector("#summary").textContent = sampleText;
+  if (!subject) return;
+
+  searchStatus.textContent = translate("sources.loading");
+  sourceGrid.innerHTML = `<article class="source-empty">${translate("sources.loading")}...</article>`;
+  sourceErrors.hidden = true;
+  document.querySelector("#summary").textContent =
+    activeLanguage === "zh" ? `正在搜索 "${subject}" 的公开来源...` : `Searching public sources for "${subject}"...`;
   document.querySelector("#reports").scrollIntoView({ behavior: "smooth", block: "start" });
+
+  try {
+    const result = await runPublicSearch(subject);
+    const signals = buildSignals(result.records, activeLanguage);
+    document.querySelector("#score").textContent = result.score;
+    document.querySelector("#meter-fill").style.width = `${result.score}%`;
+    document.querySelector("#summary").textContent =
+      activeLanguage === "zh"
+        ? `${depth}结果："${subject}"。${summarizeRecords(result.records, subject, activeLanguage)}`
+        : `${depth} result for "${subject}": ${summarizeRecords(result.records, subject, activeLanguage)}`;
+    document.querySelector("#use-case").textContent = report.use;
+
+    const signalsList = document.querySelector("#signals");
+    signalsList.innerHTML = "";
+    signals.forEach((signal) => {
+      const item = document.createElement("li");
+      item.textContent = signal;
+      signalsList.appendChild(item);
+    });
+
+    renderSourceCards(result.records);
+    renderSourceErrors(result.errors);
+    searchStatus.textContent = result.errors.length ? translate("sources.partial") : translate("sources.complete");
+  } catch (error) {
+    searchStatus.textContent = translate("sources.failed");
+    document.querySelector("#summary").textContent =
+      activeLanguage === "zh"
+        ? `搜索失败：${error.message}。${translate("sources.apiNote")}`
+        : `Search failed: ${error.message}. ${translate("sources.apiNote")}`;
+  }
 });
 
 applyLanguage();

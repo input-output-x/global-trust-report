@@ -120,6 +120,24 @@
                 </p>
               </article>
             </div>
+
+            <div class="live-sources" aria-live="polite">
+              <div class="live-sources-header">
+                <div>
+                  <h2 data-i18n="sources.title">Live public sources</h2>
+                  <p data-i18n="sources.body">
+                    This demo calls public APIs directly from the browser and shows source links for review.
+                  </p>
+                </div>
+                <span id="search-status" data-i18n="sources.idle">Ready</span>
+              </div>
+              <div class="source-grid" id="source-grid">
+                <article class="source-empty" data-i18n="sources.empty">
+                  Run a search to see Wikipedia, Wikidata, GitHub and Hacker News results here.
+                </article>
+              </div>
+              <div class="source-errors" id="source-errors" hidden></div>
+            </div>
           </div>
         </section>
       </section>

@@ -2,11 +2,13 @@
   "name": "global-trust-report",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "description": "AI-powered public trust reports for creators, contractors, founders, business partners and Web3 identities.",
   "scripts": {
     "start": "vite --host 127.0.0.1",
     "build": "vite build",
-    "preview": "vite preview --host 127.0.0.1"
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "node --test test/searchService.test.mjs"
   },
   "devDependencies": {
     "vite": "^7.0.0"

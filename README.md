@@ -13,6 +13,15 @@ Global Trust Report is a bilingual product MVP inspired by the demand for AI-pow
 
 Users can enter a name, social profile, company name, creator page, wallet address or public link. The system organizes public web signals into a structured report that helps teams make safer decisions before hiring, sponsoring, investing or collaborating.
 
+The live demo runs real browser-side searches against public APIs:
+
+- Wikipedia OpenSearch
+- Wikidata entity search
+- GitHub user search
+- Hacker News Algolia search
+
+Because this version is deployed on GitHub Pages, it does not store commercial search API keys in the browser. Full web search should be connected through a backend using Serper, Tavily, Bing Web Search or another compliant provider.
+
 This is not a people-search abuse product. It is designed around public information, source transparency, correction workflows and restricted-use boundaries.
 
 ### Pricing model
@@ -41,6 +50,15 @@ This is not a people-search abuse product. It is designed around public informat
 Global Trust Report 是一个中英双语产品 MVP，灵感来自 AI 人物研究的需求，但更聚焦全球范围内更容易付费的高价值信任决策：创作者、远程合作者、创始人、商务伙伴和 Web3 身份。
 
 用户可以输入人名、社交媒体主页、公司名称、创作者页面、钱包地址或公开链接。系统会把公开网络信号整理成结构化报告，帮助团队在招聘、投放、投资或合作前做出更安全的判断。
+
+当前线上演示版会在浏览器中真实调用公开 API：
+
+- Wikipedia OpenSearch
+- Wikidata 实体搜索
+- GitHub 用户搜索
+- Hacker News Algolia 搜索
+
+因为这个版本部署在 GitHub Pages 上，不能把商业搜索 API 密钥直接放在浏览器里。真正的全网搜索应通过后端接入 Serper、Tavily、Bing Web Search 或其他合规搜索服务。
 
 这不是“人肉搜索”或隐私窥探工具。产品边界围绕公开信息、来源透明、更正机制和限制用途设计。
 

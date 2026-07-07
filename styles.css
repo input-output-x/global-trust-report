@@ -84,6 +84,27 @@ select {
   color: var(--ink);
 }
 
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.lang-toggle {
+  min-height: 44px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  padding: 0 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.lang-toggle:hover {
+  border-color: rgba(179, 38, 45, 0.5);
+  color: var(--accent);
+}
+
 .nav-cta,
 .search-box button {
   border: 0;
@@ -410,7 +431,7 @@ p {
 
 @media (max-width: 560px) {
   .topbar {
-    align-items: flex-start;
+    align-items: center;
   }
 
   .nav-cta {

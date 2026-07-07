@@ -26,6 +26,7 @@
         <button class="lang-toggle" id="lang-toggle" type="button" aria-label="Switch language">
           中文
         </button>
+        <button class="account-button" id="account-button" type="button" data-i18n="auth.signIn">Sign in</button>
         <a class="nav-cta" href="#research" data-i18n="nav.cta">Start free</a>
       </div>
     </header>
@@ -40,7 +41,13 @@
           <button class="mode" type="button" data-mode="web3" data-i18n="modes.web3.label">Web3 Identity</button>
           <div class="usage">
             <span class="usage-label" data-i18n="sidebar.freeLabel">Free reports</span>
-            <strong data-i18n="sidebar.freeCount">3 left</strong>
+            <strong id="free-count" data-i18n="sidebar.freeCount">3 left</strong>
+          </div>
+          <div class="account-panel">
+            <span class="account-label" data-i18n="auth.account">Account</span>
+            <strong id="account-name" data-i18n="auth.guest">Guest</strong>
+            <p id="auth-status" data-i18n="auth.configNeeded">Supabase not configured. Demo sign-in is available.</p>
+            <button class="secondary-button" id="history-button" type="button" data-i18n="auth.history">Report history</button>
           </div>
         </aside>
 
@@ -239,6 +246,31 @@
       <span>Global Trust Report</span>
       <span data-i18n="footer.tagline">AI-powered public trust reports for global collaboration.</span>
     </footer>
+
+    <dialog class="auth-modal" id="auth-modal">
+      <div class="modal-header">
+        <div>
+          <p class="eyebrow" data-i18n="auth.eyebrow">Account</p>
+          <h2 data-i18n="auth.title">Sign in to use your free reports.</h2>
+        </div>
+        <button class="icon-button" id="auth-close" type="button" aria-label="Close">×</button>
+      </div>
+      <p data-i18n="auth.body">
+        Accounts track the first 3 free reports, paid credits, subscriptions and report history.
+      </p>
+      <div class="auth-actions">
+        <button class="pay-button" id="google-login" type="button" data-i18n="auth.google">Continue with Google</button>
+        <form class="email-login" id="email-login-form">
+          <label class="sr-only" for="auth-email" data-i18n="auth.emailLabel">Email</label>
+          <input id="auth-email" type="email" placeholder="you@example.com" autocomplete="email" />
+          <button type="submit" data-i18n="auth.emailButton">Send magic link</button>
+        </form>
+        <button class="secondary-button" id="demo-login" type="button" data-i18n="auth.demo">Use demo account</button>
+        <button class="secondary-button" id="logout-button" type="button" data-i18n="auth.signOut">Sign out</button>
+      </div>
+      <div class="modal-note" id="auth-message"></div>
+      <div class="history-list" id="history-list"></div>
+    </dialog>
 
     <script type="module" src="./script.js"></script>
   </body>

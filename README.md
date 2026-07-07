@@ -123,3 +123,30 @@ Recommended mapping / 推荐映射：
 If a link is empty, the site shows a configuration warning instead of sending users to a fake checkout.
 
 如果链接为空，网站会显示配置提示，不会把用户带到假的结账页。
+
+## Supabase Auth / 登录注册
+
+The login UI is already scaffolded with Google OAuth, email magic link, demo sign-in, free report credits and local report history. To enable real accounts, create a Supabase project and fill `authConfig.js`:
+
+登录 UI 已经搭好，包含 Google 登录、邮箱 Magic Link、Demo 登录、免费报告额度和报告历史。要启用真实账户，创建 Supabase 项目后填 `authConfig.js`：
+
+```js
+export const authConfig = {
+  supabaseUrl: "https://YOUR_PROJECT.supabase.co",
+  supabaseAnonKey: "YOUR_SUPABASE_ANON_KEY",
+  redirectTo: "https://input-output-x.github.io/global-trust-report/"
+};
+```
+
+Then run the SQL in `supabase/schema.sql` inside the Supabase SQL Editor. It creates:
+
+然后在 Supabase SQL Editor 里运行 `supabase/schema.sql`，它会创建：
+
+- `profiles`: user credits and subscription status / 用户额度和订阅状态
+- `reports`: report history / 报告历史
+- `stripe_events`: Stripe webhook event log / Stripe webhook 事件记录
+- Row Level Security policies / RLS 权限策略
+
+For production, move credit deduction, paid credit grants and Stripe webhook handling to Supabase Edge Functions or another backend. The browser should never decide paid entitlements by itself.
+
+正式上线时，应把额度扣减、付费额度发放和 Stripe webhook 验证放到 Supabase Edge Functions 或其他后端里，不能只靠浏览器判断用户是否付费。

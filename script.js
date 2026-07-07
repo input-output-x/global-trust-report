@@ -4,6 +4,19 @@ import {
   summarizeRecords
 } from "./searchService.js";
 import { isConfiguredPaymentLink, paymentLinks } from "./paymentLinks.js";
+import { createClient } from "@supabase/supabase-js";
+import { authConfig } from "./authConfig.js";
+import {
+  canRunReport,
+  clearDemoAccount,
+  createDemoAccount,
+  createGuestAccount,
+  isSupabaseConfigured,
+  loadDemoAccount,
+  recordReport,
+  remainingFreeReports,
+  saveDemoAccount
+} from "./authService.js";
 
 const translations = {
   en: {
@@ -19,6 +32,27 @@ const translations = {
       title: "Research modes",
       freeLabel: "Free reports",
       freeCount: "3 left"
+    },
+    auth: {
+      account: "Account",
+      body: "Accounts track the first 3 free reports, paid credits, subscriptions and report history.",
+      configNeeded: "Supabase not configured. Demo sign-in is available.",
+      configured: "Supabase configured. Use Google or email to sign in.",
+      demo: "Use demo account",
+      demoSignedIn: "Demo account active. Replace with Supabase before production.",
+      emailButton: "Send magic link",
+      emailLabel: "Email",
+      emailSent: "Magic link sent. Check your inbox.",
+      eyebrow: "Account",
+      google: "Continue with Google",
+      guest: "Guest",
+      history: "Report history",
+      historyEmpty: "No reports yet.",
+      requireSignIn: "Sign in to use your free reports and save report history.",
+      signIn: "Sign in",
+      signOut: "Sign out",
+      signedIn: "Signed in",
+      title: "Sign in to use your free reports."
     },
     hero: {
       eyebrow: "Public information intelligence",
@@ -210,6 +244,27 @@ const translations = {
       freeLabel: "免费报告",
       freeCount: "剩余 3 次"
     },
+    auth: {
+      account: "账户",
+      body: "账户用于记录前三次免费报告、付费额度、订阅状态和报告历史。",
+      configNeeded: "Supabase 尚未配置。现在可以使用 Demo 登录测试流程。",
+      configured: "Supabase 已配置。可以使用 Google 或邮箱登录。",
+      demo: "使用 Demo 账户",
+      demoSignedIn: "Demo 账户已启用。正式上线前请替换为 Supabase。",
+      emailButton: "发送 Magic Link",
+      emailLabel: "邮箱",
+      emailSent: "Magic Link 已发送，请检查邮箱。",
+      eyebrow: "账户",
+      google: "使用 Google 登录",
+      guest: "访客",
+      history: "报告历史",
+      historyEmpty: "还没有报告。",
+      requireSignIn: "请先登录，以使用免费报告并保存历史记录。",
+      signIn: "登录",
+      signOut: "退出登录",
+      signedIn: "已登录",
+      title: "登录后使用你的免费报告额度。"
+    },
     hero: {
       eyebrow: "公开信息智能分析",
       title: "在招聘、投放、投资或合作前，先生成一份 AI 信任报告。",
@@ -392,8 +447,24 @@ const sourceGrid = document.querySelector("#source-grid");
 const sourceErrors = document.querySelector("#source-errors");
 const searchStatus = document.querySelector("#search-status");
 const paymentNote = document.querySelector("#payment-note");
+const accountButton = document.querySelector("#account-button");
+const accountName = document.querySelector("#account-name");
+const authStatus = document.querySelector("#auth-status");
+const authModal = document.querySelector("#auth-modal");
+const authMessage = document.querySelector("#auth-message");
+const authClose = document.querySelector("#auth-close");
+const demoLogin = document.querySelector("#demo-login");
+const googleLogin = document.querySelector("#google-login");
+const logoutButton = document.querySelector("#logout-button");
+const emailLoginForm = document.querySelector("#email-login-form");
+const authEmail = document.querySelector("#auth-email");
+const freeCount = document.querySelector("#free-count");
+const historyButton = document.querySelector("#history-button");
+const historyList = document.querySelector("#history-list");
 const supportedLanguages = ["en", "zh"];
 let activeLanguage = getInitialLanguage();
+let currentAccount = loadDemoAccount() || createGuestAccount();
+let supabase = null;
 
 function getInitialLanguage() {
   const saved = localStorage.getItem("gtr-language");
@@ -428,6 +499,7 @@ function applyLanguage() {
   paymentNote.classList.remove("is-warning");
   renderReport(activeModeKey());
   renderEmptySources();
+  updateAuthUi();
 }
 
 function renderReport(modeKey) {
@@ -509,6 +581,85 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+async function initAuth() {
+  if (!isSupabaseConfigured(authConfig)) {
+    updateAuthUi();
+    return;
+  }
+
+  supabase = createClient(authConfig.supabaseUrl, authConfig.supabaseAnonKey);
+  const { data } = await supabase.auth.getSession();
+  if (data.session?.user) {
+    currentAccount = accountFromSupabaseUser(data.session.user);
+    saveDemoAccount(currentAccount);
+  }
+
+  supabase.auth.onAuthStateChange((_event, session) => {
+    currentAccount = session?.user ? accountFromSupabaseUser(session.user) : createGuestAccount();
+    saveDemoAccount(currentAccount);
+    updateAuthUi();
+  });
+
+  updateAuthUi();
+}
+
+function accountFromSupabaseUser(user) {
+  const stored = loadDemoAccount();
+  return {
+    ...(stored?.id === user.id ? stored : createDemoAccount(user.email || "")),
+    id: user.id,
+    email: user.email || "",
+    name: user.user_metadata?.name || user.email || "User",
+    provider: "supabase"
+  };
+}
+
+function updateAuthUi() {
+  const signedIn = currentAccount.provider !== "guest";
+  const remaining = remainingFreeReports(currentAccount);
+  freeCount.textContent =
+    activeLanguage === "zh" ? `剩余 ${remaining} 次` : `${remaining} left`;
+  accountName.textContent = signedIn ? currentAccount.email || currentAccount.name : translate("auth.guest");
+  accountButton.textContent = signedIn ? translate("auth.signedIn") : translate("auth.signIn");
+
+  if (signedIn && currentAccount.provider === "demo") {
+    authStatus.textContent = translate("auth.demoSignedIn");
+  } else if (signedIn) {
+    authStatus.textContent = translate("auth.signedIn");
+  } else {
+    authStatus.textContent = isSupabaseConfigured(authConfig)
+      ? translate("auth.configured")
+      : translate("auth.configNeeded");
+  }
+
+  renderHistory();
+}
+
+function openAuthModal(message = "") {
+  authMessage.textContent = message;
+  renderHistory();
+  if (!authModal.open) authModal.showModal();
+}
+
+function renderHistory() {
+  const reports = currentAccount.reports ?? [];
+  if (!reports.length) {
+    historyList.innerHTML = `<div class="history-item"><span>${translate("auth.historyEmpty")}</span></div>`;
+    return;
+  }
+
+  historyList.innerHTML = reports
+    .map(
+      (report) => `
+        <div class="history-item">
+          <strong>${escapeHtml(report.query)}</strong>
+          <span>${escapeHtml(report.sourceCount ?? 0)} sources · ${escapeHtml(report.createdAt ?? "")}</span>
+        </div>
+      `
+    )
+    .join("");
+}
+
 modeButtons.forEach((button) => {
   button.addEventListener("click", () => {
     modeButtons.forEach((item) => item.classList.remove("is-active"));
@@ -530,6 +681,11 @@ form.addEventListener("submit", async (event) => {
   const depth = depthSelect.options[depthSelect.selectedIndex].text;
 
   if (!subject) return;
+
+  if (!canRunReport(currentAccount)) {
+    openAuthModal(translate("auth.requireSignIn"));
+    return;
+  }
 
   searchStatus.textContent = translate("sources.loading");
   sourceGrid.innerHTML = `<article class="source-empty">${translate("sources.loading")}...</article>`;
@@ -560,6 +716,13 @@ form.addEventListener("submit", async (event) => {
     renderSourceCards(result.records);
     renderSourceErrors(result.errors);
     searchStatus.textContent = result.errors.length ? translate("sources.partial") : translate("sources.complete");
+    currentAccount = recordReport(currentAccount, {
+      query: subject,
+      mode: activeModeKey(),
+      sourceCount: result.records.length,
+      score: result.score
+    });
+    updateAuthUi();
   } catch (error) {
     searchStatus.textContent = translate("sources.failed");
     document.querySelector("#summary").textContent =
@@ -572,6 +735,11 @@ form.addEventListener("submit", async (event) => {
 document.querySelectorAll("[data-pay-plan]").forEach((button) => {
   button.addEventListener("click", () => {
     const plan = button.dataset.payPlan;
+
+    if (plan !== "free" && currentAccount.provider === "guest") {
+      openAuthModal(translate("auth.requireSignIn"));
+      return;
+    }
 
     if (plan === "free") {
       document.querySelector("#research").scrollIntoView({ behavior: "smooth", block: "start" });
@@ -591,4 +759,52 @@ document.querySelectorAll("[data-pay-plan]").forEach((button) => {
   });
 });
 
+accountButton.addEventListener("click", () => openAuthModal());
+historyButton.addEventListener("click", () => openAuthModal());
+authClose.addEventListener("click", () => authModal.close());
+
+demoLogin.addEventListener("click", () => {
+  currentAccount = createDemoAccount();
+  saveDemoAccount(currentAccount);
+  updateAuthUi();
+  authMessage.textContent = translate("auth.demoSignedIn");
+});
+
+logoutButton.addEventListener("click", async () => {
+  if (supabase) await supabase.auth.signOut();
+  clearDemoAccount();
+  currentAccount = createGuestAccount();
+  updateAuthUi();
+  authMessage.textContent = "";
+});
+
+googleLogin.addEventListener("click", async () => {
+  if (!supabase) {
+    authMessage.textContent = translate("auth.configNeeded");
+    return;
+  }
+
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: { redirectTo: authConfig.redirectTo }
+  });
+  if (error) authMessage.textContent = error.message;
+});
+
+emailLoginForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  if (!supabase) {
+    authMessage.textContent = translate("auth.configNeeded");
+    return;
+  }
+
+  const { error } = await supabase.auth.signInWithOtp({
+    email: authEmail.value,
+    options: { emailRedirectTo: authConfig.redirectTo }
+  });
+  authMessage.textContent = error ? error.message : translate("auth.emailSent");
+});
+
 applyLanguage();
+initAuth();

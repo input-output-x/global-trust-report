@@ -1,4 +1,5 @@
 const SOURCE_LIMIT = 5;
+const SOURCE_TIMEOUT_MS = 6500;
 
 function encoded(query) {
   return encodeURIComponent(query.trim());
@@ -110,11 +111,15 @@ export function buildSignals(records, language) {
 }
 
 async function fetchJson(url) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), SOURCE_TIMEOUT_MS);
+
   const response = await fetch(url, {
+    signal: controller.signal,
     headers: {
       Accept: "application/json"
     }
-  });
+  }).finally(() => clearTimeout(timeout));
 
   if (!response.ok) {
     throw new Error(`${response.status} ${response.statusText}`);

@@ -15,6 +15,162 @@ export function buildSearchUrls(query) {
   };
 }
 
+function searchUrl(base, queryParam, query) {
+  const url = new URL(base);
+  url.searchParams.set(queryParam, query);
+  return url.toString();
+}
+
+function googleSiteSearch(domain, query) {
+  return searchUrl("https://www.google.com/search", "q", `site:${domain} ${query}`);
+}
+
+function bingSiteSearch(domain, query) {
+  return searchUrl("https://www.bing.com/search", "q", `site:${domain} ${query}`);
+}
+
+function discoveryRecord(source, title, url, tier, region, snippet) {
+  return {
+    source,
+    title,
+    snippet,
+    url,
+    confidence: "review",
+    tier,
+    region
+  };
+}
+
+export function buildDiscoverySources(query, depth = "fast") {
+  const value = query.trim();
+  if (!value) return [];
+
+  const proSources = [
+    discoveryRecord(
+      "LinkedIn",
+      `LinkedIn profile search for ${value}`,
+      googleSiteSearch("linkedin.com/in", value),
+      "Pro",
+      "global",
+      "Global professional identity and employment-history discovery. Review public profiles manually."
+    ),
+    discoveryRecord(
+      "X",
+      `X / Twitter public posts for ${value}`,
+      searchUrl("https://x.com/search", "q", value),
+      "Pro",
+      "global",
+      "Public social conversation and reputation signals. Login may be required by the platform."
+    ),
+    discoveryRecord(
+      "YouTube",
+      `YouTube creator search for ${value}`,
+      searchUrl("https://www.youtube.com/results", "search_query", value),
+      "Pro",
+      "global",
+      "Creator channel, interview and video footprint discovery."
+    ),
+    discoveryRecord(
+      "TikTok",
+      `TikTok creator search for ${value}`,
+      googleSiteSearch("tiktok.com", value),
+      "Pro",
+      "global",
+      "Short-video creator footprint discovery via public web search."
+    ),
+    discoveryRecord(
+      "Instagram",
+      `Instagram public profile search for ${value}`,
+      googleSiteSearch("instagram.com", value),
+      "Pro",
+      "global",
+      "Public profile and creator presence discovery. Platform login may limit visibility."
+    ),
+    discoveryRecord(
+      "Reddit",
+      `Reddit discussions for ${value}`,
+      searchUrl("https://www.reddit.com/search/", "q", value),
+      "Pro",
+      "global",
+      "Community discussion and reputation context. Treat usernames and identity matches as weak signals."
+    )
+  ];
+
+  const ultraSources = [
+    discoveryRecord(
+      "微博",
+      `微博公开搜索：${value}`,
+      searchUrl("https://s.weibo.com/weibo", "q", value),
+      "Ultra",
+      "china",
+      "中文公开社交讨论和账号线索。需要人工确认同名和语境。"
+    ),
+    discoveryRecord(
+      "Bilibili",
+      `Bilibili 公开搜索：${value}`,
+      searchUrl("https://search.bilibili.com/all", "keyword", value),
+      "Ultra",
+      "china",
+      "视频、UP 主、评论区和内容合作线索。只作为公开发现入口。"
+    ),
+    discoveryRecord(
+      "小红书",
+      `小红书公开搜索：${value}`,
+      `https://www.xiaohongshu.com/search_result?keyword=${encoded(value)}`,
+      "Ultra",
+      "china",
+      "生活方式、消费、品牌合作和 KOL 公开线索。平台可见性可能受登录限制。"
+    ),
+    discoveryRecord(
+      "抖音",
+      `抖音公开搜索：${value}`,
+      `https://www.douyin.com/search/${encoded(value)}?type=general`,
+      "Ultra",
+      "china",
+      "短视频账号和内容足迹发现。仅打开公开平台搜索，不绕过权限。"
+    ),
+    discoveryRecord(
+      "知乎",
+      `知乎公开搜索：${value}`,
+      searchUrl("https://www.zhihu.com/search", "q", value),
+      "Ultra",
+      "china",
+      "问答、专栏、职业观点和争议上下文。需要人工复核身份匹配。"
+    ),
+    discoveryRecord(
+      "微信文章",
+      `微信公开文章搜索：${value}`,
+      searchUrl("https://weixin.sogou.com/weixin", "query", value),
+      "Ultra",
+      "china",
+      "公众号文章和公开报道发现入口，来源可信度需逐条核验。"
+    )
+  ];
+
+  const teamSources = [
+    discoveryRecord(
+      "Google News",
+      `Google News search for ${value}`,
+      searchUrl("https://news.google.com/search", "q", value),
+      "Team",
+      "global",
+      "News and media monitoring for higher-stakes collaboration review."
+    ),
+    discoveryRecord(
+      "Bing China Web",
+      `Bing China web search for ${value}`,
+      bingSiteSearch("cn", value),
+      "Team",
+      "china",
+      "Broad Chinese web discovery for team review queues and manual source triage."
+    )
+  ];
+
+  if (depth === "team") return [...proSources, ...ultraSources, ...teamSources];
+  if (depth === "deep") return proSources;
+  return [];
+}
+
 export function normalizeWikiItems(payload) {
   const titles = payload?.[1] ?? [];
   const descriptions = payload?.[2] ?? [];
@@ -128,7 +284,7 @@ async function fetchJson(url) {
   return response.json();
 }
 
-export async function runPublicSearch(query) {
+export async function runPublicSearch(query, depth = "fast") {
   const urls = buildSearchUrls(query);
   const tasks = [
     ["wikipedia", urls.wikipedia, normalizeWikiItems],
@@ -159,9 +315,11 @@ export async function runPublicSearch(query) {
     });
   });
 
+  const discoveryRecords = buildDiscoverySources(query, depth);
+
   return {
-    records,
+    records: [...records, ...discoveryRecords],
     errors,
-    score: scoreSignals(records)
+    score: scoreSignals([...records, ...discoveryRecords])
   };
 }

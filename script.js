@@ -66,9 +66,9 @@ const translations = {
       samplePrefix: "sample for"
     },
     depth: {
-      fast: "Fast report",
-      deep: "Deep report",
-      team: "Team workflow"
+      fast: "Fast report · Free",
+      deep: "Deep report · Pro",
+      team: "Team workflow · Ultra"
     },
     report: {
       trustSignal: "Trust signal",
@@ -81,7 +81,7 @@ const translations = {
     },
     sources: {
       title: "Live public sources",
-      body: "This demo calls public APIs directly from the browser and shows source links for review.",
+      body: "Free uses open APIs. Pro adds global social discovery. Ultra adds China social platforms and team review links.",
       idle: "Ready",
       loading: "Searching",
       complete: "Complete",
@@ -89,7 +89,7 @@ const translations = {
       failed: "Failed",
       empty: "Run a search to see Wikipedia, Wikidata, GitHub and Hacker News results here.",
       apiNote:
-        "GitHub Pages cannot securely store commercial search API keys. Full web search should be connected through a backend using Serper, Tavily, Bing or another compliant provider."
+        "Static pages cannot safely store commercial search API keys or scrape social platforms. Social sources open public review links first; paid tiers should use backend APIs and human review."
     },
     payment: {
       startFree: "Start free",
@@ -280,9 +280,9 @@ const translations = {
       samplePrefix: "样例："
     },
     depth: {
-      fast: "快速报告",
-      deep: "深度报告",
-      team: "团队流程"
+      fast: "快速报告 · 免费版",
+      deep: "深度报告 · Pro",
+      team: "团队流程 · Ultra"
     },
     report: {
       trustSignal: "信任信号",
@@ -295,7 +295,7 @@ const translations = {
     },
     sources: {
       title: "实时公开来源",
-      body: "这个演示会直接在浏览器调用公开 API，并展示可复核的来源链接。",
+      body: "免费版使用公开 API。Pro 增加海外社媒发现入口。Ultra 增加国内社媒和团队复核入口。",
       idle: "待搜索",
       loading: "搜索中",
       complete: "完成",
@@ -303,7 +303,7 @@ const translations = {
       failed: "失败",
       empty: "搜索后会在这里显示 Wikipedia、Wikidata、GitHub 和 Hacker News 结果。",
       apiNote:
-        "GitHub Pages 不能安全保存商业搜索 API 密钥。真正的全网搜索应通过后端接入 Serper、Tavily、Bing 或其他合规搜索服务。"
+        "静态页面不能安全保存商业搜索 API 密钥，也不应直接抓取社交平台。社媒来源先打开公开复核链接；付费层应通过后端 API 和人工复核。"
     },
     payment: {
       startFree: "免费开始",
@@ -545,7 +545,8 @@ function renderSourceCards(records) {
       const title = escapeHtml(record.title || record.url || record.source);
       const snippet = escapeHtml(record.snippet || "");
       const source = escapeHtml(record.source);
-      const confidence = escapeHtml(record.confidence || "medium");
+      const confidence = escapeHtml(record.tier || record.confidence || "medium");
+      const region = record.region ? `<span>${escapeHtml(record.region)}</span>` : "";
       const url = escapeHtml(record.url || "#");
 
       return `
@@ -553,6 +554,7 @@ function renderSourceCards(records) {
           <div class="source-meta">
             <span>${source}</span>
             <span>${confidence}</span>
+            ${region}
           </div>
           <a href="${url}" target="_blank" rel="noreferrer">${title}</a>
           <p>${snippet}</p>
@@ -698,7 +700,7 @@ form.addEventListener("submit", async (event) => {
   document.querySelector("#reports").scrollIntoView({ behavior: "smooth", block: "start" });
 
   try {
-    const result = await runPublicSearch(subject);
+    const result = await runPublicSearch(subject, depthSelect.value);
     const signals = buildSignals(result.records, activeLanguage);
     document.querySelector("#score").textContent = result.score;
     document.querySelector("#meter-fill").style.width = `${result.score}%`;

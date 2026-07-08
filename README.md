@@ -20,7 +20,14 @@ The live demo runs real browser-side searches against public APIs:
 - GitHub user search
 - Hacker News Algolia search
 
-Because this version is deployed on GitHub Pages, it does not store commercial search API keys in the browser. Full web search should be connected through a backend using Serper, Tavily, Bing Web Search or another compliant provider.
+It also shows tiered social discovery links by report depth:
+
+- Free: open knowledge, developer and discussion sources
+- Pro: global social discovery links such as LinkedIn, X, YouTube, TikTok, Instagram and Reddit
+- Ultra: China social discovery links such as Weibo, Bilibili, Xiaohongshu, Douyin, Zhihu and public WeChat article search
+- Team: broader news and team review entry points
+
+Because this version is deployed on GitHub Pages, it does not store commercial search API keys in the browser or scrape social platforms. Full web search should be connected through a backend using Serper, Tavily, Bing Web Search or another compliant provider.
 
 This is not a people-search abuse product. It is designed around public information, source transparency, correction workflows and restricted-use boundaries.
 
@@ -58,7 +65,14 @@ Global Trust Report 是一个中英双语产品 MVP，灵感来自 AI 人物研�
 - GitHub 用户搜索
 - Hacker News Algolia 搜索
 
-因为这个版本部署在 GitHub Pages 上，不能把商业搜索 API 密钥直接放在浏览器里。真正的全网搜索应通过后端接入 Serper、Tavily、Bing Web Search 或其他合规搜索服务。
+同时会根据报告深度展示分层社媒发现入口：
+
+- 免费版：开放百科、开发者和讨论类公开来源
+- Pro：海外社媒发现入口，如 LinkedIn、X、YouTube、TikTok、Instagram、Reddit
+- Ultra：国内社媒发现入口，如微博、Bilibili、小红书、抖音、知乎、微信公开文章搜索
+- Team：更广泛的新闻和团队复核入口
+
+因为这个版本部署在 GitHub Pages 上，不能把商业搜索 API 密钥直接放在浏览器里，也不直接抓取社交平台。真正的全网搜索应通过后端接入 Serper、Tavily、Bing Web Search 或其他合规搜索服务。
 
 这不是“人肉搜索”或隐私窥探工具。产品边界围绕公开信息、来源透明、更正机制和限制用途设计。
 

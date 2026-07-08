@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  buildDiscoverySources,
   buildSearchUrls,
   normalizeGithubItems,
   normalizeHackerNewsItems,
@@ -17,6 +18,17 @@ describe("search service", () => {
     assert.equal(urls.wikidata.includes("Andrew%20Chen"), true);
     assert.equal(urls.github.includes("Andrew%20Chen"), true);
     assert.equal(urls.hackerNews.includes("Andrew%20Chen"), true);
+  });
+
+  it("adds tiered social discovery sources by report depth", () => {
+    const free = buildDiscoverySources("Andrew Chen", "fast");
+    const deep = buildDiscoverySources("Andrew Chen", "deep");
+    const team = buildDiscoverySources("Andrew Chen", "team");
+
+    assert.equal(free.some((record) => record.source === "LinkedIn"), false);
+    assert.equal(deep.some((record) => record.source === "LinkedIn"), true);
+    assert.equal(deep.some((record) => record.source === "微博"), false);
+    assert.equal(team.some((record) => record.source === "微博"), true);
   });
 
   it("normalizes public API responses into source records", () => {

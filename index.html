@@ -40,8 +40,8 @@
           <button class="mode" type="button" data-mode="founder" data-i18n="modes.founder.label">Founder Brief</button>
           <button class="mode" type="button" data-mode="web3" data-i18n="modes.web3.label">Web3 Identity</button>
           <div class="usage">
-            <span class="usage-label" data-i18n="sidebar.freeLabel">Free reports</span>
-            <strong id="free-count" data-i18n="sidebar.freeCount">3 left</strong>
+            <span class="usage-label" data-i18n="sidebar.freeLabel">Current plan</span>
+            <strong id="free-count" data-i18n="sidebar.freeCount">Free basic</strong>
           </div>
           <div class="account-panel">
             <span class="account-label" data-i18n="auth.account">Account</span>
@@ -163,32 +163,32 @@
       <section class="section" id="pricing" aria-labelledby="pricing-title">
         <div class="section-heading">
           <p class="eyebrow" data-i18n="pricing.eyebrow">Pricing</p>
-          <h2 id="pricing-title" data-i18n="pricing.title">Free to try. Paid when trust matters.</h2>
+          <h2 id="pricing-title" data-i18n="pricing.title">Free basic forever. Pay for deeper trust workflows.</h2>
         </div>
         <div class="pricing-grid">
           <article class="price-card">
-            <h3 data-i18n="pricing.free.title">First 3 reports</h3>
-            <strong data-i18n="pricing.free.price">Free</strong>
-            <p data-i18n="pricing.free.body">Let users experience the full flow before paying.</p>
+            <h3 data-i18n="pricing.free.title">Free</h3>
+            <strong data-i18n="pricing.free.price">$0/mo</strong>
+            <p data-i18n="pricing.free.body">Basic public-signal search, trust summary and limited source review for everyday checks.</p>
             <button class="pay-button" type="button" data-pay-plan="free" data-i18n="payment.startFree">Start free</button>
           </article>
           <article class="price-card">
-            <h3 data-i18n="pricing.single.title">Single report</h3>
-            <strong>$9-$29</strong>
-            <p data-i18n="pricing.single.body">Fast checks for individual users and lightweight decisions.</p>
-            <button class="pay-button" type="button" data-pay-plan="single" data-i18n="payment.buySingle">Buy report</button>
+            <h3 data-i18n="pricing.single.title">Pro</h3>
+            <strong data-i18n="pricing.single.price">$29/mo</strong>
+            <p data-i18n="pricing.single.body">More sources, search history, PDF export and fuller profiles for repeat users.</p>
+            <button class="pay-button" type="button" data-pay-plan="single" data-i18n="payment.buySingle">Join Pro waitlist</button>
           </article>
           <article class="price-card featured">
-            <h3 data-i18n="pricing.deep.title">Deep report</h3>
-            <strong>$49-$199</strong>
-            <p data-i18n="pricing.deep.body">Higher-stakes reports for hiring, sponsorship, investment and business due diligence.</p>
-            <button class="pay-button" type="button" data-pay-plan="deep" data-i18n="payment.buyDeep">Buy deep report</button>
+            <h3 data-i18n="pricing.deep.title">Ultra</h3>
+            <strong data-i18n="pricing.deep.price">$79/mo</strong>
+            <p data-i18n="pricing.deep.body">Deep research, cross-platform identity signals, priority queue and faster processing.</p>
+            <button class="pay-button" type="button" data-pay-plan="deep" data-i18n="payment.buyDeep">Join Ultra waitlist</button>
           </article>
           <article class="price-card">
             <h3 data-i18n="pricing.team.title">Team</h3>
-            <strong>$99-$499/mo</strong>
-            <p data-i18n="pricing.team.body">Shared workflows for agencies, recruiting teams, brands and cross-border operators.</p>
-            <button class="pay-button" type="button" data-pay-plan="team" data-i18n="payment.subscribeTeam">Subscribe</button>
+            <strong data-i18n="pricing.team.price">Custom</strong>
+            <p data-i18n="pricing.team.body">Shared workflows, seats and review processes for agencies, recruiting teams and brands.</p>
+            <button class="pay-button" type="button" data-pay-plan="team" data-i18n="payment.subscribeTeam">Contact for team</button>
           </article>
           <article class="price-card" id="api">
             <h3>API</h3>
@@ -204,7 +204,7 @@
           </article>
         </div>
         <p class="payment-note" id="payment-note" data-i18n="payment.note">
-          Payments use Stripe Payment Links. Add your Stripe links in paymentLinks.js to enable live checkout.
+          Card checkout is intentionally paused while merchant setup is being finalized. Paid buttons collect upgrade intent first.
         </p>
       </section>
 
@@ -251,12 +251,12 @@
       <div class="modal-header">
         <div>
           <p class="eyebrow" data-i18n="auth.eyebrow">Account</p>
-          <h2 data-i18n="auth.title">Sign in to use your free reports.</h2>
+          <h2 data-i18n="auth.title">Sign in to use the free basic plan.</h2>
         </div>
         <button class="icon-button" id="auth-close" type="button" aria-label="Close">×</button>
       </div>
       <p data-i18n="auth.body">
-        Accounts track the first 3 free reports, paid credits, subscriptions and report history.
+        Accounts save your report history and prepare upgrades to Pro, Ultra, team workflows and API access.
       </p>
       <div class="auth-actions">
         <button class="pay-button" id="google-login" type="button" data-i18n="auth.google">Continue with Google</button>

@@ -7,7 +7,11 @@ export const paymentLinks = {
 };
 
 export function isConfiguredPaymentLink(url) {
-  return /^https:\/\/(buy|checkout)\.stripe\.com\//.test(url);
+  return [
+    /^https:\/\/(buy|checkout)\.stripe\.com\//,
+    /^https:\/\/checkout\.paddle\.com\//,
+    /^https:\/\/[a-z0-9-]+\.lemonsqueezy\.com\/checkout\/buy\//
+  ].some((pattern) => pattern.test(url));
 }
 
 export function paymentPlanKeys() {

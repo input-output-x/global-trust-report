@@ -6,7 +6,7 @@ import {
   createGuestAccount,
   isSupabaseConfigured,
   recordReport,
-  remainingFreeReports
+  freePlanLabel
 } from "../authService.js";
 
 describe("auth service", () => {
@@ -21,16 +21,17 @@ describe("auth service", () => {
     );
   });
 
-  it("blocks guests and allows signed-in demo users with free credits", () => {
+  it("blocks guests and allows signed-in users to use the free basic plan", () => {
     assert.equal(canRunReport(createGuestAccount()), false);
     assert.equal(canRunReport(createDemoAccount()), true);
   });
 
-  it("tracks free report usage and history", () => {
+  it("records report history without decrementing a three-report trial", () => {
     const account = createDemoAccount();
     const updated = recordReport(account, { query: "Andrew Chen", sourceCount: 4 });
 
-    assert.equal(remainingFreeReports(updated), 2);
+    assert.equal(freePlanLabel(), "Free basic");
+    assert.equal(updated.creditsUsed, 0);
     assert.equal(updated.reports.length, 1);
     assert.equal(updated.reports[0].query, "Andrew Chen");
   });

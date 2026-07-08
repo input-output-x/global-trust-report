@@ -26,10 +26,10 @@ This is not a people-search abuse product. It is designed around public informat
 
 ### Pricing model
 
-- First 3 reports: free
-- Single report: $9-$29
-- Deep report: $49-$199
-- Team plan: $99-$499/month
+- Free basic: $0/month
+- Pro: $29/month
+- Ultra: $79/month
+- Team plan: custom pricing
 - API: usage based
 - Enterprise compliance: custom pricing
 
@@ -64,10 +64,10 @@ Global Trust Report 是一个中英双语产品 MVP，灵感来自 AI 人物研�
 
 ### 收费设计
 
-- 前 3 次报告：免费
-- 单次报告：$9-$29
-- 深度报告：$49-$199
-- 团队版：$99-$499/月
+- 免费基础版：$0/月
+- Pro：$29/月
+- Ultra：$79/月
+- 团队版：定制报价
 - API：按查询量收费
 - 企业合规版：定制报价
 
@@ -96,39 +96,49 @@ npm start
 npm run build
 ```
 
-## Stripe Payment Links / Stripe 支付接入
+## Payment setup / 收款接入
 
-This GitHub Pages version uses Stripe Payment Links because a static site cannot safely store a Stripe secret key. Create your products and payment links in the Stripe Dashboard, then paste the live links into `paymentLinks.js`.
+Card checkout is intentionally paused in the current MVP. Paid buttons are used to signal upgrade intent while the merchant setup is being finalized. This avoids blocking launch on Stripe availability.
 
-当前 GitHub Pages 版本使用 Stripe Payment Links，因为静态站不能安全保存 Stripe Secret Key。你需要先在 Stripe Dashboard 创建产品和 Payment Link，然后把真实链接填入 `paymentLinks.js`。
+当前 MVP 暂停银行卡结账。付费按钮先用于表达升级意向，等商户收款方案确认后再开启真实结账，避免产品发布被 Stripe 可用性卡住。
+
+Recommended payment paths / 推荐收款路径：
+
+- Short term: keep Free / Pro / Ultra positioning and collect upgrade intent / 短期先保留 Free / Pro / Ultra 定位，收集升级意向
+- Faster global SaaS checkout: evaluate Paddle or Lemon Squeezy / 更快接全球 SaaS 收款：评估 Paddle 或 Lemon Squeezy
+- Stripe path: use Stripe in a supported region such as Hong Kong when the account and business setup are ready / Stripe 路线：等香港等支持地区的账户和主体准备好后再接
+
+When checkout is ready, paste live checkout links into `paymentLinks.js`:
+
+收款准备好后，把真实结账链接填入 `paymentLinks.js`：
 
 ```js
 export const paymentLinks = {
-  single: "https://buy.stripe.com/...",
-  deep: "https://buy.stripe.com/...",
+  single: "https://checkout.paddle.com/checkout/custom/...",
+  deep: "https://your-store.lemonsqueezy.com/checkout/buy/...",
   team: "https://buy.stripe.com/...",
-  api: "https://buy.stripe.com/...",
-  enterprise: "https://buy.stripe.com/..."
+  api: "",
+  enterprise: ""
 };
 ```
 
 Recommended mapping / 推荐映射：
 
-- `single`: Single report / 单次报告
-- `deep`: Deep report / 深度报告
-- `team`: Team subscription / 团队订阅
+- `single`: Pro / Pro
+- `deep`: Ultra / Ultra
+- `team`: Team / 团队版
 - `api`: API access or usage deposit / API 权限或用量预充值
 - `enterprise`: Enterprise compliance deposit or sales checkout / 企业合规定金或销售结账
 
-If a link is empty, the site shows a configuration warning instead of sending users to a fake checkout.
+If a link is empty, the site shows an upgrade-intent message instead of sending users to a fake checkout.
 
-如果链接为空，网站会显示配置提示，不会把用户带到假的结账页。
+如果链接为空，网站会显示升级意向提示，不会把用户带到假的结账页。
 
 ## Supabase Auth / 登录注册
 
-The login UI is already scaffolded with Google OAuth, email magic link, demo sign-in, free report credits and local report history. This repo is currently connected to the Supabase project `alfbnfxxxjdoosmpxciy`:
+The login UI is already scaffolded with Google OAuth, email magic link, demo sign-in, the free basic plan and local report history. This repo is currently connected to the Supabase project `alfbnfxxxjdoosmpxciy`:
 
-登录 UI 已经搭好，包含 Google 登录、邮箱 Magic Link、Demo 登录、免费报告额度和报告历史。当前仓库已接入 Supabase 项目 `alfbnfxxxjdoosmpxciy`：
+登录 UI 已经搭好，包含 Google 登录、邮箱 Magic Link、Demo 登录、免费基础版和报告历史。当前仓库已接入 Supabase 项目 `alfbnfxxxjdoosmpxciy`：
 
 ```js
 export const authConfig = {
@@ -156,11 +166,11 @@ Then run the SQL in `supabase/schema.sql` inside the Supabase SQL Editor. It cre
 
 然后在 Supabase SQL Editor 里运行 `supabase/schema.sql`，它会创建：
 
-- `profiles`: user credits and subscription status / 用户额度和订阅状态
+- `profiles`: user plan and subscription status / 用户套餐和订阅状态
 - `reports`: report history / 报告历史
 - `stripe_events`: Stripe webhook event log / Stripe webhook 事件记录
 - Row Level Security policies / RLS 权限策略
 
-For production, move credit deduction, paid credit grants and Stripe webhook handling to Supabase Edge Functions or another backend. The browser should never decide paid entitlements by itself.
+For production, move plan upgrades, paid entitlements and checkout webhook handling to Supabase Edge Functions or another backend. The browser should never decide paid entitlements by itself.
 
-正式上线时，应把额度扣减、付费额度发放和 Stripe webhook 验证放到 Supabase Edge Functions 或其他后端里，不能只靠浏览器判断用户是否付费。
+正式上线时，应把套餐升级、付费权益发放和结账 webhook 验证放到 Supabase Edge Functions 或其他后端里，不能只靠浏览器判断用户是否付费。

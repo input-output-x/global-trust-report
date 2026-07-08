@@ -1,4 +1,3 @@
-export const FREE_REPORT_LIMIT = 3;
 const STORAGE_KEY = "gtr-demo-account";
 
 export function isSupabaseConfigured(config) {
@@ -36,23 +35,20 @@ export function createDemoAccount(email = "demo@globaltrust.report") {
 }
 
 export function remainingFreeReports(account) {
-  return Math.max(0, FREE_REPORT_LIMIT - (account?.creditsUsed ?? 0));
+  return account?.provider === "guest" ? 0 : Infinity;
+}
+
+export function freePlanLabel() {
+  return "Free basic";
 }
 
 export function canRunReport(account) {
-  return Boolean(
-    account?.provider !== "guest" &&
-      (remainingFreeReports(account) > 0 || (account?.paidCredits ?? 0) > 0 || account?.subscription !== "free")
-  );
+  return Boolean(account?.provider !== "guest");
 }
 
 export function recordReport(account, report) {
-  const paidCredits = account.paidCredits ?? 0;
-  const freeRemaining = remainingFreeReports(account);
   const nextAccount = {
     ...account,
-    creditsUsed: freeRemaining > 0 ? (account.creditsUsed ?? 0) + 1 : account.creditsUsed ?? 0,
-    paidCredits: freeRemaining > 0 ? paidCredits : Math.max(0, paidCredits - 1),
     reports: [
       {
         id: `${Date.now()}`,

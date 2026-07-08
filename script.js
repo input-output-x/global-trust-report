@@ -14,7 +14,6 @@ import {
   isSupabaseConfigured,
   loadDemoAccount,
   recordReport,
-  remainingFreeReports,
   saveDemoAccount
 } from "./authService.js";
 
@@ -30,12 +29,12 @@ const translations = {
     },
     sidebar: {
       title: "Research modes",
-      freeLabel: "Free reports",
-      freeCount: "3 left"
+      freeLabel: "Current plan",
+      freeCount: "Free basic"
     },
     auth: {
       account: "Account",
-      body: "Accounts track the first 3 free reports, paid credits, subscriptions and report history.",
+      body: "Accounts save your report history and prepare upgrades to Pro, Ultra, team workflows and API access.",
       configNeeded: "Supabase not configured. Demo sign-in is available.",
       configured: "Supabase configured. Use Google or email to sign in.",
       demo: "Use demo account",
@@ -48,11 +47,11 @@ const translations = {
       guest: "Guest",
       history: "Report history",
       historyEmpty: "No reports yet.",
-      requireSignIn: "Sign in to use your free reports and save report history.",
+      requireSignIn: "Sign in to use the free basic plan and save report history.",
       signIn: "Sign in",
       signOut: "Sign out",
       signedIn: "Signed in",
-      title: "Sign in to use your free reports."
+      title: "Sign in to use the free basic plan."
     },
     hero: {
       eyebrow: "Public information intelligence",
@@ -94,16 +93,16 @@ const translations = {
     },
     payment: {
       startFree: "Start free",
-      buySingle: "Buy report",
-      buyDeep: "Buy deep report",
-      subscribeTeam: "Subscribe",
+      buySingle: "Join Pro waitlist",
+      buyDeep: "Join Ultra waitlist",
+      subscribeTeam: "Contact for team",
       contactApi: "Request API access",
       contactEnterprise: "Contact sales",
       note:
-        "Payments use Stripe Payment Links. Add your Stripe links in paymentLinks.js to enable live checkout.",
+        "Card checkout is intentionally paused while merchant setup is being finalized. Paid buttons collect upgrade intent first.",
       unconfigured:
-        "Stripe checkout is not configured yet. Add a Payment Link for this plan in paymentLinks.js.",
-      redirecting: "Opening Stripe Checkout..."
+        "Checkout is not enabled yet. Use this as an upgrade-intent signal while Paddle, Lemon Squeezy or Stripe HK is evaluated.",
+      redirecting: "Opening checkout..."
     },
     positioning: {
       eyebrow: "Positioning",
@@ -113,23 +112,26 @@ const translations = {
     },
     pricing: {
       eyebrow: "Pricing",
-      title: "Free to try. Paid when trust matters.",
+      title: "Free basic forever. Pay for deeper trust workflows.",
       free: {
-        title: "First 3 reports",
-        price: "Free",
-        body: "Let users experience the full flow before paying."
+        title: "Free",
+        price: "$0/mo",
+        body: "Basic public-signal search, trust summary and limited source review for everyday checks."
       },
       single: {
-        title: "Single report",
-        body: "Fast checks for individual users and lightweight decisions."
+        title: "Pro",
+        price: "$29/mo",
+        body: "More sources, search history, PDF export and fuller profiles for repeat users."
       },
       deep: {
-        title: "Deep report",
-        body: "Higher-stakes reports for hiring, sponsorship, investment and business due diligence."
+        title: "Ultra",
+        price: "$79/mo",
+        body: "Deep research, cross-platform identity signals, priority queue and faster processing."
       },
       team: {
         title: "Team",
-        body: "Shared workflows for agencies, recruiting teams, brands and cross-border operators."
+        price: "Custom",
+        body: "Shared workflows, seats and review processes for agencies, recruiting teams and brands."
       },
       api: {
         price: "Usage based",
@@ -191,7 +193,7 @@ const translations = {
         label: "Contractor Trust",
         title: "Contractor Trust Check",
         score: 76,
-        price: "$9-$29",
+        price: "Pro",
         summary:
           "Public professional signals suggest a reasonable starting point for remote collaboration review.",
         signals: [
@@ -205,7 +207,7 @@ const translations = {
         label: "Founder Brief",
         title: "Founder & Investor Brief",
         score: 71,
-        price: "$49-$199",
+        price: "Ultra",
         summary:
           "Public company, media and social signals can be organized into a concise diligence brief.",
         signals: [
@@ -241,12 +243,12 @@ const translations = {
     },
     sidebar: {
       title: "研究模式",
-      freeLabel: "免费报告",
-      freeCount: "剩余 3 次"
+      freeLabel: "当前套餐",
+      freeCount: "免费基础版"
     },
     auth: {
       account: "账户",
-      body: "账户用于记录前三次免费报告、付费额度、订阅状态和报告历史。",
+      body: "账户用于保存报告历史，并为 Pro、Ultra、团队流程和 API 权限升级做准备。",
       configNeeded: "Supabase 尚未配置。现在可以使用 Demo 登录测试流程。",
       configured: "Supabase 已配置。可以使用 Google 或邮箱登录。",
       demo: "使用 Demo 账户",
@@ -259,11 +261,11 @@ const translations = {
       guest: "访客",
       history: "报告历史",
       historyEmpty: "还没有报告。",
-      requireSignIn: "请先登录，以使用免费报告并保存历史记录。",
+      requireSignIn: "请先登录，以使用免费基础版并保存报告历史。",
       signIn: "登录",
       signOut: "退出登录",
       signedIn: "已登录",
-      title: "登录后使用你的免费报告额度。"
+      title: "登录后使用免费基础版。"
     },
     hero: {
       eyebrow: "公开信息智能分析",
@@ -305,14 +307,14 @@ const translations = {
     },
     payment: {
       startFree: "免费开始",
-      buySingle: "购买报告",
-      buyDeep: "购买深度报告",
-      subscribeTeam: "订阅团队版",
+      buySingle: "加入 Pro 候补",
+      buyDeep: "加入 Ultra 候补",
+      subscribeTeam: "联系团队版",
       contactApi: "申请 API",
       contactEnterprise: "联系销售",
-      note: "支付使用 Stripe Payment Links。在 paymentLinks.js 中填入你的 Stripe 链接后即可开启真实结账。",
-      unconfigured: "Stripe 结账链接还没配置。请先在 paymentLinks.js 中为这个套餐填入 Payment Link。",
-      redirecting: "正在打开 Stripe Checkout..."
+      note: "银行卡结账先暂停，等商户收款方案确认后再开启。当前付费按钮先用于收集升级意向。",
+      unconfigured: "结账暂未开启。当前阶段先收集升级意向，同时评估 Paddle、Lemon Squeezy 或香港 Stripe。",
+      redirecting: "正在打开结账页面..."
     },
     positioning: {
       eyebrow: "产品定位",
@@ -322,23 +324,26 @@ const translations = {
     },
     pricing: {
       eyebrow: "收费设计",
-      title: "前三次免费体验，真正需要判断信任时付费。",
+      title: "基础版永久免费，高级信任工作流再付费。",
       free: {
-        title: "前三次报告",
-        price: "免费",
-        body: "让用户在付费前体验完整流程。"
+        title: "免费版",
+        price: "$0/月",
+        body: "基础公开信号搜索、信任摘要和有限来源展示，适合日常轻量判断。"
       },
       single: {
-        title: "单次报告",
-        body: "适合个人用户、轻量查询和快速背景了解。"
+        title: "Pro",
+        price: "$29/月",
+        body: "更多来源、搜索历史、PDF 导出和更完整画像，适合持续使用的个人和小团队。"
       },
       deep: {
-        title: "深度报告",
-        body: "适合招聘、品牌投放、投资和商务尽调等高价值场景。"
+        title: "Ultra",
+        price: "$79/月",
+        body: "深度研究、跨平台身份信号、优先队列和更快处理，适合高价值判断场景。"
       },
       team: {
         title: "团队版",
-        body: "适合 Agency、招聘团队、品牌团队和跨境业务团队协作。"
+        price: "定制报价",
+        body: "共享流程、成员席位和审核机制，适合 Agency、招聘团队、品牌团队协作。"
       },
       api: {
         price: "按查询量收费",
@@ -399,7 +404,7 @@ const translations = {
         label: "合作者信任",
         title: "远程合作者信任检查",
         score: 76,
-        price: "$9-$29",
+        price: "Pro",
         summary: "公开职业信号显示其适合进入远程合作的初步审核流程。",
         signals: [
           "可将公开职业主页与作品集声明进行交叉验证。",
@@ -412,7 +417,7 @@ const translations = {
         label: "创始人简报",
         title: "创始人 / 投资人背景简报",
         score: 71,
-        price: "$49-$199",
+        price: "Ultra",
         summary: "公开公司、媒体和社交信号可整理成一份简洁的合作尽调简报。",
         signals: [
           "可从公开来源交叉验证过往项目和公开职务。",
@@ -616,9 +621,7 @@ function accountFromSupabaseUser(user) {
 
 function updateAuthUi() {
   const signedIn = currentAccount.provider !== "guest";
-  const remaining = remainingFreeReports(currentAccount);
-  freeCount.textContent =
-    activeLanguage === "zh" ? `剩余 ${remaining} 次` : `${remaining} left`;
+  freeCount.textContent = translate("sidebar.freeCount");
   accountName.textContent = signedIn ? currentAccount.email || currentAccount.name : translate("auth.guest");
   accountButton.textContent = signedIn ? translate("auth.signedIn") : translate("auth.signIn");
 

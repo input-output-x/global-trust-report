@@ -182,8 +182,18 @@ Then run the SQL in `supabase/schema.sql` inside the Supabase SQL Editor. It cre
 
 - `profiles`: user plan and subscription status / 用户套餐和订阅状态
 - `reports`: report history / 报告历史
+- `upgrade_intents`: Pro, Ultra, Team, API and Enterprise interest clicks / Pro、Ultra、Team、API、Enterprise 升级意向点击
 - `stripe_events`: Stripe webhook event log / Stripe webhook 事件记录
 - Row Level Security policies / RLS 权限策略
+
+In the Supabase dashboard, use Table Editor to inspect:
+
+在 Supabase 控制台里，可以先用 Table Editor 查看：
+
+- `auth.users`: who signed up or logged in / 谁注册或登录了
+- `profiles`: user email, display name and plan / 用户邮箱、显示名和套餐
+- `reports`: what each user searched, selected mode, selected depth, source count and score / 谁搜索了什么、用了哪个模式和深度、来源数量和分数
+- `upgrade_intents`: who clicked Pro, Ultra, Team, API or Enterprise / 谁点击了 Pro、Ultra、Team、API 或 Enterprise
 
 For production, move plan upgrades, paid entitlements and checkout webhook handling to Supabase Edge Functions or another backend. The browser should never decide paid entitlements by itself.
 

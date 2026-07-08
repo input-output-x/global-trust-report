@@ -7,6 +7,11 @@ import { isConfiguredPaymentLink, paymentLinks } from "./paymentLinks.js";
 import { createClient } from "@supabase/supabase-js";
 import { authConfig } from "./authConfig.js";
 import {
+  logReport,
+  logUpgradeIntent,
+  syncProfile
+} from "./analyticsService.js";
+import {
   accountPlan,
   canUseDepth,
   canRunReport,
@@ -481,6 +486,14 @@ let activeLanguage = getInitialLanguage();
 let currentAccount = loadDemoAccount() || createGuestAccount();
 let supabase = null;
 
+async function trackSafely(action) {
+  try {
+    await action();
+  } catch (error) {
+    console.warn("Tracking failed:", error.message);
+  }
+}
+
 function getInitialLanguage() {
   const saved = localStorage.getItem("gtr-language");
   if (supportedLanguages.includes(saved)) return saved;
@@ -609,12 +622,14 @@ async function initAuth() {
   if (data.session?.user) {
     currentAccount = accountFromSupabaseUser(data.session.user);
     saveDemoAccount(currentAccount);
+    await trackSafely(() => syncProfile(supabase, currentAccount));
   }
 
   supabase.auth.onAuthStateChange((_event, session) => {
     currentAccount = session?.user ? accountFromSupabaseUser(session.user) : createGuestAccount();
     saveDemoAccount(currentAccount);
     updateAuthUi();
+    trackSafely(() => syncProfile(supabase, currentAccount));
   });
 
   updateAuthUi();
@@ -760,12 +775,15 @@ form.addEventListener("submit", async (event) => {
     renderSourceCards(result.records);
     renderSourceErrors(result.errors);
     searchStatus.textContent = result.errors.length ? translate("sources.partial") : translate("sources.complete");
-    currentAccount = recordReport(currentAccount, {
+    const reportLog = {
       query: subject,
       mode: activeModeKey(),
+      depth: depthSelect.value,
       sourceCount: result.records.length,
       score: result.score
-    });
+    };
+    currentAccount = recordReport(currentAccount, reportLog);
+    await trackSafely(() => logReport(supabase, currentAccount, reportLog));
     updateAuthUi();
   } catch (error) {
     searchStatus.textContent = translate("sources.failed");
@@ -790,6 +808,14 @@ document.querySelectorAll("[data-pay-plan]").forEach((button) => {
       queryInput.focus();
       return;
     }
+
+    trackSafely(() =>
+      logUpgradeIntent(supabase, currentAccount, plan, {
+        language: activeLanguage,
+        selectedDepth: depthSelect.value,
+        activeMode: activeModeKey()
+      })
+    );
 
     const url = paymentLinks[plan];
     if (isConfiguredPaymentLink(url)) {

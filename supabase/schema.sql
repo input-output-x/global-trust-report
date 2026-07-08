@@ -14,8 +14,22 @@ create table if not exists public.reports (
   user_id uuid not null references auth.users(id) on delete cascade,
   query text not null,
   mode text not null,
+  depth text not null default 'fast',
   source_count integer not null default 0,
   score integer not null default 0,
+  created_at timestamptz not null default now()
+);
+
+alter table public.reports
+  add column if not exists depth text not null default 'fast';
+
+create table if not exists public.upgrade_intents (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  plan text not null,
+  source text not null default 'pricing_button',
+  status text not null default 'pending',
+  metadata jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now()
 );
 
@@ -29,6 +43,7 @@ create table if not exists public.stripe_events (
 
 alter table public.profiles enable row level security;
 alter table public.reports enable row level security;
+alter table public.upgrade_intents enable row level security;
 alter table public.stripe_events enable row level security;
 
 drop policy if exists "Users can read own profile" on public.profiles;
@@ -41,6 +56,11 @@ create policy "Users can update own profile"
   on public.profiles for update
   using (auth.uid() = id);
 
+drop policy if exists "Users can insert own profile" on public.profiles;
+create policy "Users can insert own profile"
+  on public.profiles for insert
+  with check (auth.uid() = id);
+
 drop policy if exists "Users can read own reports" on public.reports;
 create policy "Users can read own reports"
   on public.reports for select
@@ -49,6 +69,16 @@ create policy "Users can read own reports"
 drop policy if exists "Users can insert own reports" on public.reports;
 create policy "Users can insert own reports"
   on public.reports for insert
+  with check (auth.uid() = user_id);
+
+drop policy if exists "Users can read own upgrade intents" on public.upgrade_intents;
+create policy "Users can read own upgrade intents"
+  on public.upgrade_intents for select
+  using (auth.uid() = user_id);
+
+drop policy if exists "Users can insert own upgrade intents" on public.upgrade_intents;
+create policy "Users can insert own upgrade intents"
+  on public.upgrade_intents for insert
   with check (auth.uid() = user_id);
 
 create or replace function public.handle_new_user()
@@ -60,7 +90,10 @@ as $$
 begin
   insert into public.profiles (id, email, full_name)
   values (new.id, new.email, new.raw_user_meta_data->>'name')
-  on conflict (id) do nothing;
+  on conflict (id) do update
+    set email = excluded.email,
+        full_name = excluded.full_name,
+        updated_at = now();
   return new;
 end;
 $$;

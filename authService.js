@@ -42,6 +42,30 @@ export function freePlanLabel() {
   return "Free basic";
 }
 
+export function accountPlan(account) {
+  if (account?.provider === "guest") return "guest";
+  return account?.subscription || "free";
+}
+
+export function canUseDepth(account, depth) {
+  const plan = accountPlan(account);
+  const depthRank = {
+    fast: 0,
+    deep: 1,
+    team: 2
+  };
+  const planRank = {
+    guest: -1,
+    free: 0,
+    pro: 1,
+    ultra: 2,
+    team: 2,
+    enterprise: 2
+  };
+
+  return (planRank[plan] ?? 0) >= (depthRank[depth] ?? 0);
+}
+
 export function canRunReport(account) {
   return Boolean(account?.provider !== "guest");
 }

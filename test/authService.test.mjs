@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
+  canUseDepth,
   canRunReport,
   createDemoAccount,
   createGuestAccount,
@@ -24,6 +25,19 @@ describe("auth service", () => {
   it("blocks guests and allows signed-in users to use the free basic plan", () => {
     assert.equal(canRunReport(createGuestAccount()), false);
     assert.equal(canRunReport(createDemoAccount()), true);
+  });
+
+  it("gates report depth by subscription tier", () => {
+    const free = createDemoAccount();
+    const pro = { ...free, subscription: "pro" };
+    const ultra = { ...free, subscription: "ultra" };
+
+    assert.equal(canUseDepth(free, "fast"), true);
+    assert.equal(canUseDepth(free, "deep"), false);
+    assert.equal(canUseDepth(free, "team"), false);
+    assert.equal(canUseDepth(pro, "deep"), true);
+    assert.equal(canUseDepth(pro, "team"), false);
+    assert.equal(canUseDepth(ultra, "team"), true);
   });
 
   it("records report history without decrementing a three-report trial", () => {

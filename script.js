@@ -7,6 +7,8 @@ import { isConfiguredPaymentLink, paymentLinks } from "./paymentLinks.js";
 import { createClient } from "@supabase/supabase-js";
 import { authConfig } from "./authConfig.js";
 import {
+  accountPlan,
+  canUseDepth,
   canRunReport,
   clearDemoAccount,
   createDemoAccount,
@@ -52,6 +54,10 @@ const translations = {
       signOut: "Sign out",
       signedIn: "Signed in",
       title: "Sign in to use the free basic plan."
+    },
+    access: {
+      upgradeDeep: "Deep report is a Pro feature. Join the Pro waitlist to unlock global social sources.",
+      upgradeTeam: "Team workflow is an Ultra feature. Join the Ultra waitlist to unlock China social sources and team review links."
     },
     hero: {
       eyebrow: "Public information intelligence",
@@ -266,6 +272,10 @@ const translations = {
       signOut: "退出登录",
       signedIn: "已登录",
       title: "登录后使用免费基础版。"
+    },
+    access: {
+      upgradeDeep: "深度报告是 Pro 功能。加入 Pro 候补后可解锁海外社媒来源。",
+      upgradeTeam: "团队流程是 Ultra 功能。加入 Ultra 候补后可解锁国内社媒和团队复核入口。"
     },
     hero: {
       eyebrow: "公开信息智能分析",
@@ -623,9 +633,14 @@ function accountFromSupabaseUser(user) {
 
 function updateAuthUi() {
   const signedIn = currentAccount.provider !== "guest";
-  freeCount.textContent = translate("sidebar.freeCount");
+  const plan = accountPlan(currentAccount);
+  freeCount.textContent =
+    plan === "guest" || plan === "free"
+      ? translate("sidebar.freeCount")
+      : plan.charAt(0).toUpperCase() + plan.slice(1);
   accountName.textContent = signedIn ? currentAccount.email || currentAccount.name : translate("auth.guest");
   accountButton.textContent = signedIn ? translate("auth.signedIn") : translate("auth.signIn");
+  updateDepthAccess();
 
   if (signedIn && currentAccount.provider === "demo") {
     authStatus.textContent = translate("auth.demoSignedIn");
@@ -638,6 +653,16 @@ function updateAuthUi() {
   }
 
   renderHistory();
+}
+
+function updateDepthAccess() {
+  [...depthSelect.options].forEach((option) => {
+    option.disabled = !canUseDepth(currentAccount, option.value);
+  });
+
+  if (!canUseDepth(currentAccount, depthSelect.value)) {
+    depthSelect.value = "fast";
+  }
 }
 
 function openAuthModal(message = "") {
@@ -679,6 +704,13 @@ langToggle.addEventListener("click", () => {
   applyLanguage();
 });
 
+depthSelect.addEventListener("change", () => {
+  if (canUseDepth(currentAccount, depthSelect.value)) return;
+  paymentNote.textContent = depthSelect.value === "team" ? translate("access.upgradeTeam") : translate("access.upgradeDeep");
+  paymentNote.classList.add("is-warning");
+  depthSelect.value = "fast";
+});
+
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   const report = translations[activeLanguage].modes[activeModeKey()];
@@ -689,6 +721,13 @@ form.addEventListener("submit", async (event) => {
 
   if (!canRunReport(currentAccount)) {
     openAuthModal(translate("auth.requireSignIn"));
+    return;
+  }
+
+  if (!canUseDepth(currentAccount, depthSelect.value)) {
+    paymentNote.textContent = depthSelect.value === "team" ? translate("access.upgradeTeam") : translate("access.upgradeDeep");
+    paymentNote.classList.add("is-warning");
+    depthSelect.value = "fast";
     return;
   }
 
